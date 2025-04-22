@@ -4,6 +4,7 @@ import streamlit as st
 import numpy as np
 from scipy.stats import beta
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # PERT distribution function
 def pert_sample(low, mode, high, size=1, lamb=4):
@@ -56,6 +57,19 @@ for _ in range(n_simulations):
 
 exit_values = np.array(exit_values)
 
+# Define thresholds you care about
+thresholds = [25e6, 50e6, 75e6, 100e6, 150e6, 200e6]
+
+# Calculate probability that exit value exceeds each threshold
+prob_table = {
+    "Exit Value Threshold ($M)": [f"${int(t/1e6):,}M" for t in thresholds],
+    "Probability ≥ Value": [f"{(exit_values >= t).mean()*100:.1f}%" for t in thresholds]
+}
+
+# Convert to DataFrame
+prob_df = pd.DataFrame(prob_table)
+
+
 # Results Display
 st.title("🏁 Monte Carlo Exit Value Estimator")
 
@@ -74,3 +88,7 @@ ax.set_xlabel("Exit Value ($MM)")
 ax.set_ylabel("Frequency")
 ax.legend()
 st.pyplot(fig)
+
+st.subheader("📈 Exit Value Probabilities")
+st.write("Estimated probability that the exit value exceeds each threshold:")
+st.table(prob_df)
